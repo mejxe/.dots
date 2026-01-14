@@ -1,0 +1,4 @@
+#+title:Dotfiles
+
+* Why the file structure?
+These dotfiles are stowed with GNU-stow, hence the file structure.
