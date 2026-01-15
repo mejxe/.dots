@@ -54,4 +54,3 @@
 ;; (unpin! t)
 (package! drag-stuff)
 (package! evil-goggles)
-(package! simpleclip)

@@ -255,34 +255,20 @@
 
 
 ;; Vim like clipboard
-(defun simpleclip-copy-line ()
-  "Copy the current line to system clipboard."
-  (interactive)
-  (require 'simpleclip)
-  (let ((text (buffer-substring-no-properties 
-               (line-beginning-position) 
-               (line-end-position ))))
-    (simpleclip-set-contents text)
-    (message "Line copied to system clipboard")))
-(use-package! simpleclip
-  :config
-  (simpleclip-mode 1)
-  (after! evil
-    (define-key evil-insert-state-map (kbd "C-v") #'simpleclip-paste))
-  (map! :leader
-        :desc "Simpleclip Paste" "P" #'simpleclip-paste)
+(setq select-enable-clipboard nil
+      select-enable-primary nil)
 
-  (map! :leader
-        :v
-        :desc "Simpleclip Copy" "y" #'simpleclip-copy)
+(map! :leader
+      ;; 1. YANK (Copy)
+      ;; We set the register to '+' (system), then call yank.
+      ;; Since yank is an "operator", it will automatically wait for your motion (iw, $, etc.)
+      :desc "Yank to system" "y"
+      (cmd! (evil-use-register ?+) (call-interactively #'evil-yank))
 
-
-  (map! :leader
-        :n
-        :desc "Simpleclip Copy Line" "y" #'simpleclip-copy-line))
-
-;;
-;;
+      :desc "Paste from system (Before)" "P"
+      (cmd! (evil-use-register ?+) (call-interactively #'evil-paste-before)));;
+(after! evil
+  (map! :i "C-v" (cmd! (evil-paste-from-register ?+))))
 ;;java
 (after! lsp-java
   ;; Tell LSP that 'java-ts-mode' uses the 'java' language server
