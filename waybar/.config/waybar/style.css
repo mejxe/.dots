@@ -1,0 +1,168 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: 'MonaSpace Neon Light', monospace;
+    font-size: 17px;
+}
+
+window#waybar {
+    background-color: #282828;
+    border-radius: 0;
+    color: #ebdbb2;
+    opacity: 1;
+    margin: 12px 16px 8px 16px;
+}
+
+button {
+    box-shadow: inset 0 -3px transparent;
+    border: none;
+    border-radius: 0;
+}
+
+
+#workspaces {
+    margin-right: 20px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: #a89984;
+}
+
+#workspaces button:hover {
+    background: #3c3836;
+    color: #ebdbb2;
+}
+
+#workspaces button.active {
+    color: #fe8019;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background-color: #fb4934;
+    color: #282828;
+}
+
+#mode {
+    background-color: #fe8019;
+    color: #282828;
+    padding: 0 10px;
+    font-weight: bold;
+}
+
+#clock {
+    color: #ebdbb2;
+    padding: 0 10px;
+}
+
+#cpu {
+    color: #b8bb26;
+    padding-right: 13px;
+}
+
+#memory {
+    color: #83a598;
+    padding-right: 13px;
+}
+
+#network {
+    color: #d3869b;
+    padding: 0 10px;
+}
+
+#network.disconnected {
+    color: #fb4934;
+}
+
+#pulseaudio,
+#wireplumber {
+    color: #8ec07c;
+    padding: 0 10px;
+}
+
+#pulseaudio.muted {
+    color: #928374;
+}
+
+#tray {
+    padding: 0 10px;
+}
+
+#tray>.passive {
+    opacity: 0.6;
+}
+
+#tray>.needs-attention {
+    opacity: 1.0;
+    background-color: #fb4934;
+}
+
+tooltip {
+    background: #3c3836;
+    border: 1px solid #504945;
+    border-radius: 5px;
+    color: #ebdbb2;
+}
+
+tooltip label {
+    color: #ebdbb2;
+}
+
+#custom-notification {
+    color: #fabd2f;
+    padding: 0 10px;
+}
+
+#custom-notification.notification {
+    color: #fe8019;
+}
+
+#battery {
+
+    color: #fabd2f;
+}
+
+#custom-notification.dnd {
+    color: #928374;
+}
+
+#custom-notification.dnd-notification {
+    color: #fb4934;
+}
+
+#backlight {
+
+    color: #fe8019;
+}
+
+#window {
+    margin-right: 15px;
+}
+
+#bluetooth {
+    color: #83a598;
+    padding: 0;
+}
+
+
+#clock,
+#battery,
+#disk,
+#cpu,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#wireplumber,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#scratchpad,
+#power-profiles-daemon,
+#mpd {
+    padding: 0 13px;
+    margin: 0;
+}

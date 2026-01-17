@@ -204,24 +204,35 @@
 ;; Agenda
 (setq org-agenda-custom-commands
       '(("v" "Improved view"
-         (
+         ((tags "*"
+                ((org-agenda-files '("~/org/this_week.org"))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-prefix-format "")
+                 (org-agenda-overriding-header "--- IMPORTANT ---")))
           (agenda ""
-                  ((org-agenda-span '30)
-                   (org-agenda-show-all-dates 'nil)
+                  ((org-agenda-span 30)       ;
+                   (org-agenda-show-all-dates nil)
                    (org-agenda-overriding-header "Scheduled Stuff")))
           (tags "*"
                 ((org-agenda-files '("~/org/exams.org"))
                  (org-agenda-sorting-strategy '(timestamp-up alpha-up))
                  (org-agenda-overriding-header "--- EXAMS ---")))
-          (tags-todo "*"
-                     ((org-agenda-files '("~/org/personal.org"))
-                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                      (org-agenda-overriding-header "--- PERSONAL ---")))
           (tags "*"
                 ((org-agenda-files '("~/org/uni.org"))
                  (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                 (org-agenda-overriding-header "--- UNI ---")))
-          ))))
+                 (org-agenda-overriding-header "--- UNI ---")))))
+
+        ("p" "Personal todos"
+         ((tags "*"
+                ((org-agenda-files '("~/org/personal.org"))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-prefix-format "")
+                 (org-agenda-overriding-header "--- PERSONAL ---")))
+          (tags-todo "*"
+                     ((org-agenda-files '("~/org/projects.org"))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "%b")
+                      (org-agenda-overriding-header "--- PROJECTS ---")))))))
 
 (defun open-custom-agenda()
   (interactive)
