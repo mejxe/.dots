@@ -32,7 +32,8 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-
+(setq fancy-splash-image (concat doom-user-dir "splash.png"))
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 (setq doom-gruvbox-dark-variant "soft")
 (setq doom-theme 'doom-gruvbox)
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))

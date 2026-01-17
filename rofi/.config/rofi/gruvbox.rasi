@@ -23,9 +23,9 @@ window {
     height: 500px;
     width: 500px;
 
-    x-offset: -150px;
-    border: 1;
-    border-radius: 10;
+    x-offset: 0px;
+    border: 0 1 1 1;
+    border-radius: 0 0 10 10;
     border-color: @bgStatusline3;
 }
 

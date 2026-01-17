@@ -54,3 +54,5 @@
 ;; (unpin! t)
 (package! drag-stuff)
 (package! evil-goggles)
+(package! org-superstar)
+(package! org-anki)

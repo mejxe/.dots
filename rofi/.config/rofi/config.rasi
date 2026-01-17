@@ -17,7 +17,7 @@ configuration {
 	show-icons: true;
 	icon-theme: "Gruvbox-Plus-Dark";
 /*	cache-dir: ;*/
-	location: 3;
+	location: 2;
 	steal-focus: false;
 /*	dpi: -1;*/
 
