@@ -295,4 +295,7 @@
  :n "M-p" 'duplicate-line
  :n "C-," 'doom/window-maximize-buffer)
 
-;; Winner undo
+;; dired . bind
+(map! :after dired
+      :map dired-mode-map
+      :n "." #'dired-up-directory)
