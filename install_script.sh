@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # --- Configuration ---
-DOTFILES_REPO="https://github.com/yourusername/dotfiles.git"
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_REPO="https://github.com/mejxe/.dots.git"
+DOTFILES_DIR="$HOME/.dotfiles"
 PACKAGES=("git" "stow" "neovim" "zsh" "kitty")
 
 # --- Colors for output ---
@@ -18,13 +18,6 @@ sudo pacman -Syu --noconfirm
 echo -e "${YELLOW}Installing official packages...${NC}"
 sudo pacman -S --needed --noconfirm "${PACKAGES[@]}"
 
-# 3. Install Yay (AUR Helper) if not present
-if ! command -v yay &> /dev/null; then
-    echo -e "${YELLOW}Installing yay (AUR helper)...${NC}"
-    git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
-    cd /tmp/yay-bin && makepkg -si --noconfirm
-    cd - || exit
-fi
 
 # 4. Clone Dotfiles
 if [ ! -d "$DOTFILES_DIR" ]; then
@@ -38,9 +31,8 @@ fi
 echo -e "${YELLOW}Stowing configurations...${NC}"
 cd "$DOTFILES_DIR" || exit
 
-# Example: Stowing specific folders.
-# Use 'stow */' to do everything, but I prefer being explicit:
-for folder in zsh nvim tmux; do
+# specific stow
+for folder in zsh nvim; do
     if [ -d "$folder" ]; then
         # -R (restow) handles updates; --adopt handles existing files
         stow -R "$folder"
