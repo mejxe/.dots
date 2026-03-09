@@ -7,7 +7,8 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
-;;       user-mail-address "john@doe.com")
+                                        ;
+                                        ;       user-mail-address "john@doe.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -32,11 +33,32 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
+(use-package! doom-themes)
 (setq fancy-splash-image (concat doom-user-dir "splash.png"))
 (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 (setq doom-gruvbox-dark-variant "soft")
-(setq doom-theme 'doom-gruvbox)
+(setq doom-gruvbox-light-brighter-comments 'true)
+(setq doom-gruvbox-light-brighter-modeline 'true)
+(setq doom-gruvbox-dark-brighter-comments 'true)
+(setq doom-gruvbox-dark-brighter-modeline 'true)
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
+(use-package doom-themes)
+(setq fancy-splash-image (concat doom-user-dir "splash.png"))
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+(setq doom-gruvbox-dark-variant "soft")
+(setq doom-gruvbox-light-brighter-modeline 'true)
+(setq doom-gruvbox-light-brighter-comments nil)
+(setq doom-gruvbox-dark-brighter-comments 'true)
+(setq doom-gruvbox-dark-brighter-modeline 'true)
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
+(use-package! circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("6:00" . doom-gruvbox-light)
+                           ("17:30" . doom-gruvbox)))
+  (add-hook 'doom-init-ui-hook #'circadian-setup))
+
+
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -96,7 +118,7 @@
       evil-split-window-below nil)
 
 ;; unlag terminal
-(setq vterm-timer-delay nil)
+;;(setq vterm-timer-delay nil)
 
 ;; nvim keybinds
 ;;; --- Keybindings (Ported from keymap.lua) ---
@@ -224,11 +246,11 @@
                  (org-agenda-overriding-header "--- UNI ---")))))
 
         ("p" "Personal todos"
-         ((tags "*"
-                ((org-agenda-files '("~/org/personal.org"))
-                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                 (org-agenda-prefix-format "")
-                 (org-agenda-overriding-header "--- PERSONAL ---")))
+         ((tags-todo "*"
+                     ((org-agenda-files '("~/org/personal.org"))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- PERSONAL ---")))
           (tags-todo "*"
                      ((org-agenda-files '("~/org/projects.org"))
                       (org-agenda-sorting-strategy '(timestamp-up alpha-up))
@@ -239,8 +261,13 @@
   (interactive)
   (org-agenda nil "v")
   )
+(defun open-personal-todos()
+  (interactive)
+  (org-agenda nil "p")
+  )
 (map!
- :n "M-m" 'open-custom-agenda)
+ :n "M-m" 'open-custom-agenda
+ :leader "np" 'open-personal-todos)
 ;;
 ;;Agenda templates
 (after! org
@@ -299,3 +326,11 @@
 (map! :after dired
       :map dired-mode-map
       :n "." #'dired-up-directory)
+
+;; topsy - sticky function context
+(use-package! topsy
+  :defer t
+  :init
+  (add-hook! lsp-mode
+    (unless (memq major-mode '(+doom-dashboard-mode org-mode dirvish-mode))
+      (topsy-mode +1))))

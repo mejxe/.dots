@@ -84,7 +84,7 @@ configuration {
 
 	/*---------- Misc setting ----------*/
 	terminal: "rofi-sensible-terminal";
-	font: "JetBrainsMono Nerd Font 12";
+	font: "Monaspace Argon 12";
 	sort: false;
 	threads: 0;
 	click-to-exit: true;
@@ -105,7 +105,6 @@ configuration {
     }
 
 	/*---------- Keybindings ----------*/
-/*
 	kb-primary-paste: "Control+V,Shift+Insert";
 	kb-secondary-paste: "Control+v,Insert";
 	kb-clear-line: "Control+w";
@@ -119,9 +118,9 @@ configuration {
 	kb-remove-word-forward: "Control+Alt+d";
 	kb-remove-char-forward: "Delete,Control+d";
 	kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";
-	kb-remove-to-eol: "Control+k";
 	kb-remove-to-sol: "Control+u";
-	kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
+	kb-remove-to-eol: "";
+	kb-accept-entry: ",Control+m,Return,KP_Enter";
 	kb-accept-custom: "Control+Return";
 	kb-accept-custom-alt: "Control+Shift+Return";
 	kb-accept-alt: "Shift+Return";
@@ -129,9 +128,10 @@ configuration {
 	kb-mode-next: "Shift+Right,Control+Tab";
 	kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
 	kb-mode-complete: "Control+l";
+	kb-row-down: "Down,Control+j";
+	kb-row-up: "Up,Control+k";
 	kb-row-left: "Control+Page_Up";
 	kb-row-right: "Control+Page_Down";
-	kb-row-down: "Down,Control+n";
 	kb-page-prev: "Page_Up";
 	kb-page-next: "Page_Down";
 	kb-row-first: "Home,KP_Home";
@@ -178,6 +178,5 @@ configuration {
 	me-select-entry: "MousePrimary";
 	me-accept-entry: "MouseDPrimary";
 	me-accept-custom: "Control+MouseDPrimary";
-*/
 }
 @theme "./gruvbox.rasi"
