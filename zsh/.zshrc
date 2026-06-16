@@ -18,6 +18,7 @@ alias grep='grep --color=auto'
 alias nv='NVIM_APPNAME="nvchad" nvim'
 alias vim='nvim'
 alias ssh='TERM=xterm-256color ssh'
+alias hb='systemctl hibernate'
 bindkey -e
 
 
@@ -92,3 +93,20 @@ zstyle ':completion:*' list-colors  "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 eval "$(fzf --zsh)"
+esp() { 
+  git config --global --get-all safe.directory \
+    | grep -q '^/opt/esp-idf$' \
+    || git config --global --add safe.directory /opt/esp-idf
+  source /opt/esp-idf/export.sh
+  alias idf=idf.py
+  eval "$(env LANG=en \
+              _IDF.PY_COMPLETE=bash_source \
+              idf.py \
+    | sed -e 's,$1,$1.py,' \
+          -e 's,idf\.py$,idf,' \
+          -e 's,_idfpy_completion,_idfpy_completion2,')"
+}
+### Input method setup
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx

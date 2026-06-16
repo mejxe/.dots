@@ -12,6 +12,7 @@
         "hyprland/window",
         "cpu",
         "memory",
+        "idle-inhibitor"
     ],
     "modules-center": [
     "clock",
@@ -84,11 +85,11 @@
     "cpu": {
         "format": "{usage}% ",
         "tooltip": false,
-        "on-click": "kitty btop",
+        "on-click": "kitty htop",
     },
     "memory": {
         "format": "{}% ",
-        "on-click": "kitty btop",
+        "on-click": "kitty htop",
     },
     "temperature": {
         // "thermal-zone": 2,

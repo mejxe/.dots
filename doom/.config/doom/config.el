@@ -34,7 +34,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (use-package! doom-themes)
-(setq fancy-splash-image (concat doom-user-dir "splash.png"))
+(setq doom-theme 'doom-gruvbox)
 (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 (setq doom-gruvbox-dark-variant "soft")
 (setq doom-gruvbox-light-brighter-comments 'true)
@@ -51,13 +51,6 @@
 (setq doom-gruvbox-dark-brighter-comments 'true)
 (setq doom-gruvbox-dark-brighter-modeline 'true)
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
-(use-package! circadian
-  :ensure t
-  :config
-  (setq circadian-themes '(("6:00" . doom-gruvbox-light)
-                           ("17:30" . doom-gruvbox)))
-  (add-hook 'doom-init-ui-hook #'circadian-setup))
-
 
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -139,6 +132,10 @@
   (setq lsp-signature-auto-activate nil)
   )
 
+;; stop autocomplete
+(after! corfu
+  (setq corfu-auto nil))
+(setq tab-always-indent 'complete)
 ;; undo tree
 (map!
  :n "U" #'vundo
@@ -168,8 +165,7 @@
 ;; 3. Bind them
 (map! :after vertico
       :map vertico-map
-      "C-v" #'my/vertico-vsplit
-      "C-s" #'my/vertico-hsplit)
+      "C-s" #'my/vertico-vsplit)
 (map!
  ;; -- Normal Mode Mappings --
  :n ";" #'evil-ex                     ; Map ; to :
@@ -252,6 +248,11 @@
                       (org-agenda-prefix-format "")
                       (org-agenda-overriding-header "--- PERSONAL ---")))
           (tags-todo "*"
+                     ((org-agenda-files '("~/org/this_week.org"))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- THIS WEEK ---")))
+          (tags-todo "*"
                      ((org-agenda-files '("~/org/projects.org"))
                       (org-agenda-sorting-strategy '(timestamp-up alpha-up))
                       (org-agenda-prefix-format "%b")
@@ -294,20 +295,24 @@
 
 
 ;; Vim like clipboard
+
 (setq select-enable-clipboard nil
       select-enable-primary nil)
 
 (map! :leader
-      ;; 1. YANK (Copy)
-      ;; We set the register to '+' (system), then call yank.
-      ;; Since yank is an "operator", it will automatically wait for your motion (iw, $, etc.)
       :desc "Yank to system" "y"
-      (cmd! (evil-use-register ?+) (call-interactively #'evil-yank))
+      (cmd! (let ((select-enable-clipboard t))
+              (evil-use-register ?+)
+              (call-interactively #'evil-yank)))
 
       :desc "Paste from system (Before)" "P"
-      (cmd! (evil-use-register ?+) (call-interactively #'evil-paste-before)));;
+      (cmd! (let ((select-enable-clipboard t))
+              (evil-use-register ?+)
+              (call-interactively #'evil-paste-before))))
+
 (after! evil
-  (map! :i "C-v" (cmd! (evil-paste-from-register ?+))))
+  (map! :i "C-v" (cmd! (insert (shell-command-to-string "wl-paste -n")))))
+
 ;;java
 (after! lsp-java
   ;; Tell LSP that 'java-ts-mode' uses the 'java' language server
@@ -334,3 +339,107 @@
   (add-hook! lsp-mode
     (unless (memq major-mode '(+doom-dashboard-mode org-mode dirvish-mode))
       (topsy-mode +1))))
+
+;; ai slop
+(defun my/get-gptel-key ()
+  "fetch api key form auth"
+  (let ((match (auth-source-search :host "api.generativelanguage.googleapis.com" :user "apikey")))
+    (if match
+        (let ((secret (plist-get (car match) :secret)))
+          (if (functionp secret)
+              (funcall secret)
+            secret))
+      (error "Key not found"))))
+(use-package gptel
+  :ensure t
+  :config
+  (setq-default gptel-backend
+                (gptel-make-gemini "Gemini"
+                  :key 'my/get-gptel-key
+                  :stream t))
+  (setq-default gptel-model 'gemini-2.5-flash)
+  (setq-default gptel-include-reasoning nil))
+
+;; markdown
+(custom-set-faces!
+  '(markdown-header-delimiter-face :foreground "#616161" :height 0.9)
+  '(markdown-header-face-1 :height 1.8 :foreground "#A3BE8C" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-2 :height 1.4 :foreground "#EBCB8B" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-3 :height 1.2 :foreground "#D08770" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-4 :height 1.15 :foreground "#BF616A" :weight bold :inherit markdown-header-face)
+  '(markdown-header-face-5 :height 1.1 :foreground "#b48ead" :weight bold :inherit markdown-header-face)
+  '(markdown-header-face-6 :height 1.05 :foreground "#5e81ac" :weight semi-bold :inherit markdown-header-face))
+
+(defvar nb/current-line '(0 . 0)
+  "(start . end) of current line in current buffer")
+(make-variable-buffer-local 'nb/current-line)
+
+(defun nb/unhide-current-line (limit)
+  "Font-lock function"
+  (let ((start (max (point) (car nb/current-line)))
+        (end (min limit (cdr nb/current-line))))
+    (when (< start end)
+      (remove-text-properties start end
+                              '(invisible t display "" composition ""))
+      (goto-char limit)
+      t)))
+
+(defun nb/refontify-on-linemove ()
+  "Post-command-hook"
+  (let* ((start (line-beginning-position))
+         (end (line-beginning-position 2))
+         (needs-update (not (equal start (car nb/current-line)))))
+    (setq nb/current-line (cons start end))
+    (when needs-update
+      (font-lock-fontify-block 3))))
+
+(defun nb/markdown-unhighlight ()
+  "Enable markdown concealling"
+  (interactive)
+  (markdown-toggle-markup-hiding 'toggle)
+  (font-lock-add-keywords nil '((nb/unhide-current-line)) t)
+  (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
+(add-hook 'markdown-mode-hook #'nb/markdown-unhighlight)
+
+(defun ffc()
+  (interactive)
+  (let ((path (shell-command-to-string "wl-paste -n")))
+    (find-file (string-trim path))))
+
+;; c cool formatting
+(setq c-default-style "allman")
+(setq c-ts-mode-indent-style "bsd")
+
+(after! apheleia
+  (setf (alist-get 'clang-format apheleia-formatters)
+        '("clang-format" "-assume-filename"
+          (or (apheleia-formatters-local-buffer-file-name)
+              (apheleia-formatters-mode-extension) ".c")
+          "--style={BasedOnStyle: LLVM, BreakBeforeBraces: Allman}")))
+
+;; dape config for stm32
+(setq dape-adapter-dir (expand-file-name "~/.config/emacs/debug-adapters/"))
+
+
+(defun dape-stm32 (elf-path)
+  (interactive
+   (list (expand-file-name
+          (read-file-name "Select .elf file: "
+                          (concat (project-root (project-current t)) "build/")))))
+
+  (dape `(command "/home/mejxe/.config/emacs/debug-adapters/cpptools-debug/bin/OpenDebugAD7"
+          :type "cppdbg"
+          :request "launch"
+          :cwd ,(project-root (project-current t))
+          :program ,elf-path
+          :MIMode "gdb"
+          :miDebuggerPath "/usr/bin/arm-none-eabi-gdb"
+          :setupCommands [(:text "target extended-remote localhost:3333" :ignoreFailures nil)
+                          (:text "monitor reset halt" :ignoreFailures nil)
+                          (:text ,(concat "file " elf-path) :ignoreFailures nil)
+                          (:text "load" :ignoreFailures nil)])))
+
+(with-eval-after-load 'lsp-clangd
+  (setq lsp-clients-clangd-args
+        '("--query-driver=/usr/bin/arm-none-eabi-*"
+          "--header-insertion=never")))
