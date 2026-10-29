@@ -1,175 +1,66 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; config.el --- generated from config.org -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
+(setq doom-theme 'doom-gruvbox
+      doom-gruvbox-dark-variant "soft"
+      doom-gruvbox-dark-brighter-comments t
+      doom-gruvbox-dark-brighter-modeline t
+      doom-gruvbox-light-brighter-comments nil
+      doom-gruvbox-light-brighter-modeline t)
 
-
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets. It is optional.
-;; (setq user-full-name "John Doe"
-                                        ;
-                                        ;       user-mail-address "john@doe.com")
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;; - `doom-symbol-font' -- for symbols
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
-;;
-;; See 'C-h v doom-font' for documentation and more examples of what they
-;; accept. For example:
-;;
-;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
-;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-;;
-;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
-;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
-;; refresh your font settings. If Emacs still can't find your font, it likely
-;; wasn't installed correctly. Font issues are rarely Doom issues!
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(use-package! doom-themes)
-(setq doom-theme 'doom-gruvbox)
-(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-(setq doom-gruvbox-dark-variant "soft")
-(setq doom-gruvbox-light-brighter-comments 'true)
-(setq doom-gruvbox-light-brighter-modeline 'true)
-(setq doom-gruvbox-dark-brighter-comments 'true)
-(setq doom-gruvbox-dark-brighter-modeline 'true)
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
-(use-package doom-themes)
+
 (setq fancy-splash-image (concat doom-user-dir "splash.png"))
-(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
-(setq doom-gruvbox-dark-variant "soft")
-(setq doom-gruvbox-light-brighter-modeline 'true)
-(setq doom-gruvbox-light-brighter-comments nil)
-(setq doom-gruvbox-dark-brighter-comments 'true)
-(setq doom-gruvbox-dark-brighter-modeline 'true)
-(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
 
+(add-hook 'org-mode-hook #'org-superstar-mode)
 
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
+;; Must be set before org loads!
 (setq org-directory "~/org/")
 
+(add-load-path! "lisp")
 
-;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
-;;
-;;   (after! PACKAGE
-;;     (setq x y))
-;;
-;; The exceptions to this rule:
-;;
-;;   - Setting file/directory variables (like `org-directory')
-;;   - Setting variables which explicitly tell you to set them before their
-;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-;;   - Setting doom variables (which start with 'doom-' or '+').
-;;
-;; Here are some additional functions/macros that will help you configure Doom.
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; etc).
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
-
-;; settings
-;;; --- General Settings (Ported from set.lua) ---
-
-;; 1. Line Numbers: Relative (vim.opt.relativenumber = true)
+;; Relative (vim.opt.relativenumber = true)
 (setq display-line-numbers-type 'relative)
 
-;; 2. Tabs & Indentation (vim.opt.tabstop = 4, expandtab = true)
+;; (vim.opt.tabstop = 4, expandtab = true)
 ;; Note: Emacs handles this per-mode, but this sets the defaults.
 (setq-default tab-width 4
               standard-indent 4
               indent-tabs-mode nil) ; expandtab (use spaces)
 
-;; 3. Scrolling (vim.opt.scrolloff = 10)
+;; (vim.opt.scrolloff = 10)
 (setq scroll-margin 10)
 (setq evil-kill-on-visual-paste nil)
 
-;; 4. Split Behavior (vim.opt.splitright = true, splitbelow = false)
+;; (vim.opt.splitright = true, splitbelow = false)
 (setq evil-vsplit-window-right t
       evil-split-window-below nil)
 
-;; unlag terminal
-;;(setq vterm-timer-delay nil)
-
-;; nvim keybinds
-;;; --- Keybindings (Ported from keymap.lua) ---
 (use-package! drag-stuff
   :config
   (drag-stuff-global-mode 1))
 
-;; fix apheleia
-(after! apheleia
-  (setf (alist-get 'rust-mode apheleia-mode-alist) '(lsp))
-  (setf (alist-get 'rustic-mode apheleia-mode-alist) '(lsp))
-  (setf (alist-get 'rust-ts-mode apheleia-mode-alist) '(lsp)))
+(use-package! evil-goggles
+  :config
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces))
 
-(setq +format-with-lsp t)
-;; lsp settings
-(after! lsp-mode
-  ;; Stop the signature popup from showing automatically
-  (setq lsp-signature-auto-activate nil)
-  )
-
-;; stop autocomplete
-(after! corfu
-  (setq corfu-auto nil))
-(setq tab-always-indent 'complete)
-;; undo tree
 (map!
  :n "U" #'vundo
  )
-;; vertico splits
-(defun my/open-in-vsplit (file)
-  (interactive "f")
-  (select-window (split-window-right))
-  (find-file file))
 
-(defun my/open-in-hsplit (file)
-  (interactive "f")
-  (select-window (split-window-below))
-  (find-file file))
-
-(defun my/vertico-vsplit ()
+;; Helper function for the "J" behavior (join without moving cursor)
+(defun my/join-lines-stay ()
+  "Join lines but keep cursor position."
   (interactive)
-  (require 'embark)
-  ;; 't' at the end tells Embark to quit the minibuffer immediately
-  (embark--act #'my/open-in-vsplit (car (embark--targets)) t))
+  (let ((p (point)))
+    (evil-join (point) (line-beginning-position 2))
+    (goto-char p)))
 
-(defun my/vertico-hsplit ()
-  (interactive)
-  (require 'embark)
-  (embark--act #'my/open-in-hsplit (car (embark--targets)) t))
-
-;; 3. Bind them
-(map! :after vertico
-      :map vertico-map
-      "C-s" #'my/vertico-vsplit)
 (map!
  ;; -- Normal Mode Mappings --
  :n ";" #'evil-ex                     ; Map ; to :
- :n "J" #'mz/join-lines-stay          ; J keeps cursor in place (defined below)
+ :n "J" #'my/join-lines-stay          ; J keeps cursor in place (defined above)
+ :n "M-u" #'universal-argument
 
  ;; Centered Scrolling (C-d/C-u + zz)
  :n "C-d" (cmd! (evil-scroll-down 0) (evil-scroll-line-to-center nil))
@@ -198,131 +89,6 @@
  :desc "Seach project" "sg" #'+default/search-project
  :desc "Diagnostic List" "c q"  #'flycheck-list-errors)
 
-
-;; Helper function for the "J" behavior (join without moving cursor)
-(use-package! evil-goggles
-  :config
-  (evil-goggles-mode)
-  (evil-goggles-use-diff-faces))
-(defun mz/join-lines-stay ()
-  "Join lines but keep cursor position."
-  (interactive)
-  (let ((p (point)))
-    (evil-join (point) (line-beginning-position 2))
-    (goto-char p)))
-
-
-;; ORG MODE
-(custom-set-faces!
-  '(org-level-1 :inherit outline-1 :height 1.4)
-  '(org-level-2 :inherit outline-2 :height 1.3)
-  '(org-level-3 :inherit outline-3 :height 1.2)
-  '(org-level-4 :inherit outline-4 :height 1.1)
-  '(org-document-title :height 1.75 :weight bold))
-
-;; Agenda
-(setq org-agenda-custom-commands
-      '(("v" "Improved view"
-         ((tags "*"
-                ((org-agenda-files '("~/org/this_week.org"))
-                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                 (org-agenda-prefix-format "")
-                 (org-agenda-overriding-header "--- IMPORTANT ---")))
-          (agenda ""
-                  ((org-agenda-span 30)       ;
-                   (org-agenda-show-all-dates nil)
-                   (org-agenda-overriding-header "Scheduled Stuff")))
-          (tags "*"
-                ((org-agenda-files '("~/org/exams.org"))
-                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                 (org-agenda-overriding-header "--- EXAMS ---")))
-          (tags "*"
-                ((org-agenda-files '("~/org/uni.org"))
-                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                 (org-agenda-overriding-header "--- UNI ---")))))
-
-        ("p" "Personal todos"
-         ((tags-todo "*"
-                     ((org-agenda-files '("~/org/personal.org"))
-                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                      (org-agenda-prefix-format "")
-                      (org-agenda-overriding-header "--- PERSONAL ---")))
-          (tags-todo "*"
-                     ((org-agenda-files '("~/org/this_week.org"))
-                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                      (org-agenda-prefix-format "")
-                      (org-agenda-overriding-header "--- THIS WEEK ---")))
-          (tags-todo "*"
-                     ((org-agenda-files '("~/org/projects.org"))
-                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
-                      (org-agenda-prefix-format "%b")
-                      (org-agenda-overriding-header "--- PROJECTS ---")))))))
-
-(defun open-custom-agenda()
-  (interactive)
-  (org-agenda nil "v")
-  )
-(defun open-personal-todos()
-  (interactive)
-  (org-agenda nil "p")
-  )
-(map!
- :n "M-m" 'open-custom-agenda
- :leader "np" 'open-personal-todos)
-;;
-;;Agenda templates
-(after! org
-  (add-to-list 'org-capture-templates
-               '("c" "Code TODO" entry
-                 (file+headline +org-capture-todo-file "Inbox")
-                 "* TODO %?\nFrom: %a\n\n#+BEGIN_SRC %(with-current-buffer (org-capture-get :original-buffer) (replace-regexp-in-string \"-ts-mode$\\|-mode$\" \"\" (symbol-name major-mode)))\n%i\n#+END_SRC\n"
-                 :prepend t
-                 :kill-buffer t)))
-;; DAP
-(setq dape-adapter-dir "~/.config/emacs/debug-adapters/")
-;; PDFS
-(use-package! pdf-tools
-  :config
-  (add-to-list 'revert-without-query ".pdf")
-  (map! :map pdf-view-mode-map
-        :n "j"   #'pdf-view-next-line-or-next-page
-        :n "k"   #'pdf-view-previous-line-or-previous-page
-        :n "C-=" #'pdf-view-enlarge
-        :n "C--" #'pdf-view-shrink))
-(add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)
-                                  (blink-cursor-mode -1)))
-;;
-
-
-;; Vim like clipboard
-
-(setq select-enable-clipboard nil
-      select-enable-primary nil)
-
-(map! :leader
-      :desc "Yank to system" "y"
-      (cmd! (let ((select-enable-clipboard t))
-              (evil-use-register ?+)
-              (call-interactively #'evil-yank)))
-
-      :desc "Paste from system (Before)" "P"
-      (cmd! (let ((select-enable-clipboard t))
-              (evil-use-register ?+)
-              (call-interactively #'evil-paste-before))))
-
-(after! evil
-  (map! :i "C-v" (cmd! (insert (shell-command-to-string "wl-paste -n")))))
-
-;;java
-(after! lsp-java
-  ;; Tell LSP that 'java-ts-mode' uses the 'java' language server
-  (add-to-list 'lsp-language-id-configuration '(java-ts-mode . "java")))
-
-;; 3. Trigger LSP automatically when java-ts-mode activates
-(add-hook 'java-ts-mode-hook #'lsp)
-
-
-;; useful binds
 (map!
  :n "M-p" 'duplicate-line
  :n "C-," 'doom/window-maximize-buffer)
@@ -332,7 +98,68 @@
       :map dired-mode-map
       :n "." #'dired-up-directory)
 
-;; topsy - sticky function context
+(setq select-enable-clipboard nil
+      select-enable-primary nil)
+
+(evil-define-operator my/evil-yank-clipboard (beg end type)
+  "Yank to the system clipboard only, leaving the kill ring untouched.
+`evil-yank' always calls `kill-new', even for the + register."
+  :move-point nil
+  :repeat nil
+  (interactive "<R>")
+  (let ((text (if (eq type 'block)
+                  (string-join (extract-rectangle beg end) "\n")
+                (filter-buffer-substring beg end))))
+    (when (and (memq type '(line screen-line))
+               (not (string-suffix-p "\n" text)))
+      (setq text (concat text "\n")))
+    (evil-set-selection 'CLIPBOARD text)
+    (unless (memq type '(line screen-line))
+      (goto-char beg))))
+
+(evil-define-command my/evil-paste-clipboard (count)
+  "Paste before point from the system clipboard, linewise if it ends in a newline."
+  :suppress-operator t
+  (interactive "*P")
+  (let ((text (evil-get-register ?+)))
+    (evil-paste-before count ?+ (and (stringp text)
+                                     (string-suffix-p "\n" text)
+                                     #'evil-yank-line-handler))))
+
+(map! :leader
+      :desc "Yank to system" :nv "y" #'my/evil-yank-clipboard
+      :desc "Paste from system (before)" :n "P" #'my/evil-paste-clipboard)
+
+(after! evil
+  (map! :i "C-v" (cmd! (insert (shell-command-to-string "wl-paste -n")))))
+
+(defun my/ffc ()
+  "Open the file whose path is in the Wayland clipboard."
+  (interactive)
+  (let ((path (shell-command-to-string "wl-paste -n")))
+    (find-file (string-trim path))))
+
+;; standalone rustfmt has no idea about the crate's edition, so format via rust-analyzer
+(after! apheleia
+  (dolist (mode '(rust-mode rustic-mode rust-ts-mode))
+    (setf (alist-get mode apheleia-mode-alist) '(lsp))))
+
+(defvar-local my/c-clang-format-style
+  "--style={BasedOnStyle: LLVM, BreakBeforeBraces: Allman}"
+  "Style argument passed to clang-format; override per project via dir-locals.")
+
+(after! apheleia
+  (setf (alist-get 'clang-format apheleia-formatters)
+        '("clang-format" "-assume-filename"
+          (or (apheleia-formatters-local-buffer-file-name)
+              (apheleia-formatters-mode-extension) ".c")
+          my/c-clang-format-style)))
+
+(after! lsp-mode
+  ;; Stop the signature popup from showing automatically
+  (setq lsp-signature-auto-activate nil)
+  )
+
 (use-package! topsy
   :defer t
   :init
@@ -340,27 +167,221 @@
     (unless (memq major-mode '(+doom-dashboard-mode org-mode dirvish-mode))
       (topsy-mode +1))))
 
-;; ai slop
-(defun my/get-gptel-key ()
-  "fetch api key form auth"
-  (let ((match (auth-source-search :host "api.generativelanguage.googleapis.com" :user "apikey")))
-    (if match
-        (let ((secret (plist-get (car match) :secret)))
-          (if (functionp secret)
-              (funcall secret)
-            secret))
-      (error "Key not found"))))
-(use-package gptel
-  :ensure t
-  :config
-  (setq-default gptel-backend
-                (gptel-make-gemini "Gemini"
-                  :key 'my/get-gptel-key
-                  :stream t))
-  (setq-default gptel-model 'gemini-2.5-flash)
-  (setq-default gptel-include-reasoning nil))
+(setq c-default-style "bsd"
+      c-ts-mode-indent-style 'bsd)
 
-;; markdown
+(after! lsp-clangd
+  (dolist (arg '("--query-driver=/usr/bin/arm-none-eabi-*"
+                 "--header-insertion=never"))
+    (cl-pushnew arg lsp-clients-clangd-args :test #'equal)))
+
+(defvar my/openocd-command
+  "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg"
+  "Shell command that starts OpenOCD for the current board.")
+
+(defun my/openocd-ready-p ()
+  "Return non-nil if OpenOCD listens for gdb on port 3333.
+Uses ss instead of connecting, since OpenOCD takes only one gdb client."
+  (with-temp-buffer
+    (call-process "ss" nil t nil "-ltn" "sport = :3333")
+    (> (count-lines (point-min) (point-max)) 1)))
+
+(defun my/openocd-ensure ()
+  "Start OpenOCD in a vterm buffer unless its gdb port is already up."
+  (unless (my/openocd-ready-p)
+    (let ((buf (get-buffer-create "*openocd*")))
+      (unless (get-buffer-process buf)
+        (with-current-buffer buf (vterm-mode)))
+      (with-current-buffer buf
+        (vterm-send-string my/openocd-command)
+        (vterm-send-return))
+      (display-buffer buf '(display-buffer-in-side-window (side . bottom) (window-height . 0.25)))
+      (let ((tries 0))
+        (while (and (< tries 100) (not (my/openocd-ready-p)))
+          (sleep-for 0.2)
+          (cl-incf tries)))
+      (unless (my/openocd-ready-p)
+        (user-error "OpenOCD did not open port 3333 in 20 s, check *openocd*")))))
+
+(defun my/openocd-stop ()
+  "Kill the *openocd* vterm buffer, which also stops OpenOCD."
+  (when-let* ((buf (get-buffer "*openocd*")))
+    (when-let* ((proc (get-buffer-process buf)))
+      (set-process-query-on-exit-flag proc nil))
+    (kill-buffer buf)))
+
+(after! dape
+  ;; dape has no quit hook, so run after its final cleanup (the call without skip-process-buffers).
+  (advice-add 'dape--kill-buffers :after
+              (lambda (&optional skip-process-buffers)
+                (unless skip-process-buffers (my/openocd-stop))))
+
+  ;; dape expects `compilation-find-buffer' to return the build buffer, but in a buffer with
+  ;; flycheck/lsp it returns the current one. Switching to the build buffer fixes it.
+  (setq dape-compile-function
+        (lambda (cmd)
+          (set-buffer (compile cmd)))))
+
+(defun dape-stm32 (elf-path)
+  "Start OpenOCD in vterm, build, then flash ELF-PATH over localhost:3333 and debug it with dape."
+  (interactive
+   (list (expand-file-name
+          (read-file-name "Select .elf file: "
+                          (concat (project-root (project-current t)) "build/")))))
+
+  (require 'dape)
+  (require 'vterm)
+  (my/openocd-ensure)
+  (dape `(command ,(expand-file-name "debug-adapters/cpptools-debug/bin/OpenDebugAD7" doom-emacs-dir)
+          command-cwd ,(project-root (project-current t))
+          compile "make -j8"
+          :type "cppdbg"
+          :request "launch"
+          :cwd ,(project-root (project-current t))
+          :program ,elf-path
+          :MIMode "gdb"
+          :externalConsole :json-false
+          :miDebuggerPath ,(executable-find "arm-none-eabi-gdb")
+          :setupCommands [(:text "target extended-remote localhost:3333" :ignoreFailures nil)
+                          (:text "monitor reset halt" :ignoreFailures nil)
+                          (:text ,(concat "file " elf-path) :ignoreFailures nil)
+                          (:text "load" :ignoreFailures nil)])))
+
+(custom-set-faces!
+  '(org-level-1 :inherit outline-1 :height 1.4)
+  '(org-level-2 :inherit outline-2 :height 1.3)
+  '(org-level-3 :inherit outline-3 :height 1.2)
+  '(org-level-4 :inherit outline-4 :height 1.1)
+  '(org-document-title :height 1.75 :weight bold))
+
+(defun my/org-file (name)
+  "Absolute path of NAME inside `org-directory'."
+  (expand-file-name name org-directory))
+
+(setq org-agenda-custom-commands
+      '(("v" "Improved view"
+         ((tags "*"
+                ((org-agenda-files (list (my/org-file "this_week.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-prefix-format "")
+                 (org-agenda-overriding-header "--- IMPORTANT ---")))
+          (agenda ""
+                  ((org-agenda-span 30)       ;
+                   (org-agenda-show-all-dates nil)
+                   (org-agenda-overriding-header "Scheduled Stuff")))
+          (tags "*"
+                ((org-agenda-files (list (my/org-file "exams.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-overriding-header "--- EXAMS ---")))
+          (tags "*"
+                ((org-agenda-files (list (my/org-file "uni.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-overriding-header "--- UNI ---")))))
+
+        ("p" "Personal todos"
+         ((tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "personal.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- PERSONAL ---")))
+          (tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "this_week.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- THIS WEEK ---")))
+          (tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "projects.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "%-12:c ")
+                      (org-agenda-overriding-header "--- PROJECTS ---")))))))
+
+(defun my/open-custom-agenda ()
+  "Open the custom \"v\" agenda view (important, scheduled, exams, uni)."
+  (interactive)
+  (org-agenda nil "v")
+  )
+(defun my/open-personal-todos ()
+  "Open the custom \"p\" agenda view (personal, this week, projects todos)."
+  (interactive)
+  (org-agenda nil "p")
+  )
+(map!
+ :n "M-m" #'my/open-custom-agenda
+ :leader "np" #'my/open-personal-todos)
+
+(after! org
+  (add-to-list 'org-capture-templates
+               '("c" "Code TODO" entry
+                 (file+headline +org-capture-todo-file "Inbox")
+                 "* TODO %?\nFrom: %a\n\n#+BEGIN_SRC %(with-current-buffer (org-capture-get :original-buffer) (replace-regexp-in-string \"-ts-mode$\\|-mode$\" \"\" (symbol-name major-mode)))\n%i\n#+END_SRC\n"
+                 :prepend t
+                 :kill-buffer t)))
+
+(use-package! org-roam
+  :custom
+  (org-roam-node-display-template
+   (concat "${title:*} " (propertize "${tags:20}" 'face 'shadow)
+           " ${backlinkscount:3}"))
+  :config
+  (cl-defmethod org-roam-node-backlinkscount ((node org-roam-node))
+    (number-to-string (length (org-roam-backlinks-get node))))
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           "%?\n\n* References\n- "
+           :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n\nTagi: \n\n")
+           :unnarrowed t)
+          ("l" "literature" plain
+           "* Źródło
+- Autor: %^{Autor}
+- Typ: %^{Typ|książka|artykuł|wideo|kurs|dokumentacja}
+- Gdzie: %^{Link / strony}
+
+* Główne tezy
+%?
+
+* Cytaty
+-
+
+* Moje uwagi
+-
+
+* Notatki z tego źródła
+- "
+           :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :literature:\n\nTagi: \n\n")
+           :unnarrowed t))))
+
+(use-package! org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+
+(use-package! pdf-tools
+  :config
+  (add-to-list 'revert-without-query ".pdf")
+  (map! :map pdf-view-mode-map
+        :n "j"   #'pdf-view-next-line-or-next-page
+        :n "k"   #'pdf-view-previous-line-or-previous-page
+        :n "C-=" #'pdf-view-enlarge
+        :n "C-c C-g" #'pdf-view-goto-page
+        :n "C--" #'pdf-view-shrink))
+(add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)
+                                  (blink-cursor-mode -1)))
+
+(use-package! saveplace-pdf-view
+  :after (:any doc-view pdf-tools)
+  :demand t)
+
+(defun my/browse-books ()
+  "Find a file in the ~/calibre-books library."
+  (interactive)
+  (doom-project-find-file "~/calibre-books")
+  )
+
 (custom-set-faces!
   '(markdown-header-delimiter-face :foreground "#616161" :height 0.9)
   '(markdown-header-face-1 :height 1.8 :foreground "#A3BE8C" :weight extra-bold :inherit markdown-header-face)
@@ -370,76 +391,46 @@
   '(markdown-header-face-5 :height 1.1 :foreground "#b48ead" :weight bold :inherit markdown-header-face)
   '(markdown-header-face-6 :height 1.05 :foreground "#5e81ac" :weight semi-bold :inherit markdown-header-face))
 
-(defvar nb/current-line '(0 . 0)
-  "(start . end) of current line in current buffer")
-(make-variable-buffer-local 'nb/current-line)
+(defvar my/current-line '(0 . 0)
+  "(START . END) of the line point is on, used to reveal its hidden markup.")
+(make-variable-buffer-local 'my/current-line)
 
-(defun nb/unhide-current-line (limit)
-  "Font-lock function"
-  (let ((start (max (point) (car nb/current-line)))
-        (end (min limit (cdr nb/current-line))))
+(defun my/unhide-current-line (limit)
+  "Font-lock matcher that removes markdown concealment on the current line up to LIMIT."
+  (let ((start (max (point) (car my/current-line)))
+        (end (min limit (cdr my/current-line))))
     (when (< start end)
       (remove-text-properties start end
                               '(invisible t display "" composition ""))
       (goto-char limit)
       t)))
 
-(defun nb/refontify-on-linemove ()
-  "Post-command-hook"
+(defun my/refontify-on-linemove ()
+  "Refontify around point whenever it moves to another line.\nMeant for `post-command-hook'."
   (let* ((start (line-beginning-position))
          (end (line-beginning-position 2))
-         (needs-update (not (equal start (car nb/current-line)))))
-    (setq nb/current-line (cons start end))
+         (needs-update (not (equal start (car my/current-line)))))
+    (setq my/current-line (cons start end))
     (when needs-update
       (font-lock-fontify-block 3))))
 
-(defun nb/markdown-unhighlight ()
-  "Enable markdown concealling"
+(defun my/markdown-unhighlight ()
+  "Hide markdown markup, revealing it only on the line point is on."
   (interactive)
   (markdown-toggle-markup-hiding 'toggle)
-  (font-lock-add-keywords nil '((nb/unhide-current-line)) t)
-  (add-hook 'post-command-hook #'nb/refontify-on-linemove nil t))
-(add-hook 'markdown-mode-hook #'nb/markdown-unhighlight)
+  (font-lock-add-keywords nil '((my/unhide-current-line)) t)
+  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
+(add-hook 'markdown-mode-hook #'my/markdown-unhighlight)
 
-(defun ffc()
-  (interactive)
-  (let ((path (shell-command-to-string "wl-paste -n")))
-    (find-file (string-trim path))))
+(use-package! headerize)
 
-;; c cool formatting
-(setq c-default-style "allman")
-(setq c-ts-mode-indent-style "bsd")
+(use-package! rsc
+  :commands (rsc-ask rsc-ask-terminal rsc-switch)
+  :config
+  (map! :map rsc-answer-mode-map :nm "q" #'quit-window))
 
-(after! apheleia
-  (setf (alist-get 'clang-format apheleia-formatters)
-        '("clang-format" "-assume-filename"
-          (or (apheleia-formatters-local-buffer-file-name)
-              (apheleia-formatters-mode-extension) ".c")
-          "--style={BasedOnStyle: LLVM, BreakBeforeBraces: Allman}")))
-
-;; dape config for stm32
-(setq dape-adapter-dir (expand-file-name "~/.config/emacs/debug-adapters/"))
-
-
-(defun dape-stm32 (elf-path)
-  (interactive
-   (list (expand-file-name
-          (read-file-name "Select .elf file: "
-                          (concat (project-root (project-current t)) "build/")))))
-
-  (dape `(command "/home/mejxe/.config/emacs/debug-adapters/cpptools-debug/bin/OpenDebugAD7"
-          :type "cppdbg"
-          :request "launch"
-          :cwd ,(project-root (project-current t))
-          :program ,elf-path
-          :MIMode "gdb"
-          :miDebuggerPath "/usr/bin/arm-none-eabi-gdb"
-          :setupCommands [(:text "target extended-remote localhost:3333" :ignoreFailures nil)
-                          (:text "monitor reset halt" :ignoreFailures nil)
-                          (:text ,(concat "file " elf-path) :ignoreFailures nil)
-                          (:text "load" :ignoreFailures nil)])))
-
-(with-eval-after-load 'lsp-clangd
-  (setq lsp-clients-clangd-args
-        '("--query-driver=/usr/bin/arm-none-eabi-*"
-          "--header-insertion=never")))
+(map!
+ (:prefix ("M-a" . "rsc")
+  :desc "Ask rsc" "M-a" #'rsc-ask
+  :desc "Ask rsc (terminal)" "t" #'rsc-ask-terminal
+  :desc "Switch to rsc" "s" #'rsc-switch))

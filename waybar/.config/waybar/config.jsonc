@@ -172,6 +172,7 @@
 		"default": "",
             "2": "𝓔",
 	},
+        "on-click": "activate"
 
 	
     },

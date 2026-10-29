@@ -3,7 +3,7 @@
 # --- Configuration ---
 DOTFILES_REPO="https://github.com/mejxe/.dots.git"
 DOTFILES_DIR="$HOME/.dotfiles"
-PACKAGES=("git" "stow" "neovim" "zsh" "kitty" "fzf" )
+PACKAGES=("git" "stow" "neovim" "zsh" "kitty" "fzf" "ttf-jetbrains-mono-nerd" )
 
 # --- Colors for output ---
 YELLOW='\033[1;33m'
@@ -34,7 +34,6 @@ cd "$DOTFILES_DIR" || exit
 # specific stow
 for folder in zsh nvim kitty; do
     if [ -d "$folder" ]; then
-        # -R (restow) handles updates; --adopt handles existing files
         stow -R "$folder"
         echo "Stowed $folder"
     fi

@@ -1,7 +1,12 @@
 local mainMod = "SUPER"
+package.path = package.path .. ";./?.lua;./?/init.lua"
+local smw = require("plugins.split-monitor-workspaces")
+
+local cursor_theme = "phinger-cursors-dark"
+local cursor_size = 28
 
 hl.monitor({
-	output = "DP-1",
+	output = "DP-3",
 	mode = "1920x1080",
 	position = "0x0",
 	scale = 1,
@@ -10,19 +15,22 @@ hl.monitor({
 
 hl.monitor({
 	output = "HDMI-A-1",
-	mode = "2560x1440@144",
+	mode = "2560x1440@120",
 	position = "1080x0",
-	scale = 1,
 	bitdepth = 10,
 	cm = "dcip3",
 	icc = "/home/mejxe/.config/hypr/aoc_Q27G3XMN.icm",
 })
---hl.monitor({ output = "eDP-1", mode = "preferred", scale = 1 })
+--
+hl.monitor({ output = "eDP-1", mode = "1920x1200", scale = 1, position = "auto" })
+--hl.monitor({ output = "HDMI-A-1", mode = auto, position = "auto", mirror = "eDP-1" })
 
 hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
 hl.env("HYPRSHOT_DIR", "~/screenshots")
-hl.env("HYPRCURSOR_THEME", "phinger-cursors-dark")
-hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_THEME", cursor_theme)
+hl.env("HYPRCURSOR_SIZE", cursor_size)
+hl.env("XCURSOR_THEME", cursor_theme)
+hl.env("XCURSOR_SIZE", cursor_size)
 
 hl.on("hyprland.start", function()
 	hl.exec_cmd("hyprpm reload -n")
@@ -32,9 +40,10 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("kanshi")
 	hl.exec_cmd("fcitx5")
 	hl.exec_cmd("easyeffects --gapplication-service")
-	hl.exec_cmd("gsettings set org.gnome.desktop.interface cursor-theme 'Capitaine Cursors'")
+	hl.exec_cmd(string.format("gsettings set org.gnome.desktop.interface cursor-theme '%s'", cursor_theme))
+	hl.exec_cmd("hyprctl setcursor %s %d", cursor_theme, cursor_size)
 	hl.exec_cmd("/usr/libexec/polkit-kde-authentication-agent-1")
-	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP")
 	hl.exec_cmd("wl-clip-persist --clipboard regular")
 end)
 
@@ -133,7 +142,7 @@ hl.animation({
 -- RULES --
 
 -- special workspace
-hl.workspace_rule({ workspace = "special:scratch", on_created_empty = "[float; center] kitty" })
+hl.workspace_rule({ workspace = "special:scratch", on_created_empty = "[float; center] nautilus" })
 hl.window_rule({ match = { workspace = "scratch" }, float = true })
 hl.window_rule({ match = { workspace = "sctrach" }, center = true })
 
@@ -144,8 +153,6 @@ hl.window_rule({ match = { class = "^(org.gnome.Nautilus)$" }, center = true })
 -- disable maximize
 hl.window_rule({ match = { class = ".*" }, suppress_event = "maximize" })
 -- bind workspaces
-hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1", default = true })
-hl.workspace_rule({ workspace = "3", monitor = "DP-1", default = true })
 ----------------
 
 -- BINDS ---
@@ -172,25 +179,41 @@ hl.bind(mainMod .. " + h", hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + k", hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + j", hl.dsp.focus({ direction = "down" }))
 
-hl.bind(mainMod .. " + 1", hl.dsp.focus({ workspace = "1", on_current_monitor = true }))
-hl.bind(mainMod .. " + 2", hl.dsp.focus({ workspace = "2", on_current_monitor = true }))
-hl.bind(mainMod .. " + 3", hl.dsp.focus({ workspace = "3", on_current_monitor = true }))
-hl.bind(mainMod .. " + 4", hl.dsp.focus({ workspace = "4", on_current_monitor = true }))
-hl.bind(mainMod .. " + 5", hl.dsp.focus({ workspace = "5", on_current_monitor = true }))
-hl.bind(mainMod .. " + 6", hl.dsp.focus({ workspace = "6", on_current_monitor = true }))
-hl.bind(mainMod .. " + 7", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-sound-menu.sh rofi"))
-hl.bind(mainMod .. " + 8", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-bluetooth.sh rofi"))
-hl.bind(mainMod .. " + 9", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-wifi-menu.sh rofi"))
+-- SMW (split-multiple-workspaces plugin)
+smw.setup({
+	workspace_count = 10,
+	enable_persistent_workspaces = false,
+	monitor_priority = { "DP-3", "HDMI-A-1", "DP-1", "eDP-1" },
+})
+
+for i = 1, smw.get_amount_of_workspaces() do
+	local n = tostring(i)
+
+	if n == "10" then
+		n = "0"
+	end
+
+	hl.bind(mainMod .. " +" .. n, smw.workspace(n))
+	hl.bind(mainMod .. " + SHIFT +" .. n, smw.move_to_workspace_silent(n))
+end
+
+hl.bind(mainMod .. " + SHIFT + G", smw.grab_rogue_windows())
+
+---- SMW END
+
+--[[ BACKUP WITHOUT SMW
+for i = 1, 9 do
+	local n = tostring(i)
+	hl.bind(mainMod .. " +" .. n, hl.dsp.focus({ workspace = n, on_current_monitor = true }))
+	hl.bind(mainMod .. " + SHIFT +" .. n, hl.dsp.window.move({ workspace = n, follow = false }))
+end
+--]]
+
+hl.bind(mainMod .. " + F7", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-sound-menu.sh rofi"))
+hl.bind(mainMod .. " + F8", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-bluetooth.sh rofi"))
+hl.bind(mainMod .. " + F9", hl.dsp.exec_cmd("~/.config/waybar/scripts/rofi-wifi-menu.sh rofi"))
 
 hl.bind(mainMod .. " + s", hl.dsp.workspace.toggle_special("scratch"))
-
-hl.bind(mainMod .. " + SHIFT + 1", hl.dsp.window.move({ workspace = 1, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 2", hl.dsp.window.move({ workspace = 2, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 3", hl.dsp.window.move({ workspace = 3, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 4", hl.dsp.window.move({ workspace = 4, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 5", hl.dsp.window.move({ workspace = 5, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 6", hl.dsp.window.move({ workspace = 6, follow = false }))
-hl.bind(mainMod .. " + SHIFT + 7", hl.dsp.window.move({ workspace = 7, follow = false }))
 
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"))
 
@@ -201,3 +224,14 @@ hl.bind(mainMod .. " + SHIFT + s", hl.dsp.exec_cmd("hyprshot -m region --clipboa
 hl.bind("PRINT", hl.dsp.exec_cmd("hyprshot -m output --clipboard-only"))
 hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd("hyprshot -m region"))
 --------------
+if hl.plugin.dynamic_cursors then
+	hl.config({
+		plugin = {
+			dynamic_cursors = {
+				enabled = true,
+				mode = "none",
+				hyprcursor = { enabled = true },
+			},
+		},
+	})
+end

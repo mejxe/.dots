@@ -58,3 +58,7 @@
 (package! org-anki)
 (package! topsy)
 (package! circadian)
+(package! saveplace-pdf-view)
+(package! org-roam)
+(package! org-roam-ui
+  :recipe (:host github :repo "org-roam/org-roam-ui" :files ("*.el" "out")))

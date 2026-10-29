@@ -19,6 +19,7 @@ alias nv='NVIM_APPNAME="nvchad" nvim'
 alias vim='nvim'
 alias ssh='TERM=xterm-256color ssh'
 alias hb='systemctl hibernate'
+alias mv='mv -i'
 bindkey -e
 
 

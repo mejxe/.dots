@@ -1,0 +1,731 @@
+#+TITLE: Doom Emacs
+#+AUTHOR: mejxe
+#+STARTUP: overview
+#+PROPERTY: header-args:emacs-lisp :tangle yes :comments no :lexical t
+
+# Description: My emacs config in a literate format.
+
+
+* Header
+This pastes in the header.
+
+#+begin_src emacs-lisp
+;;; config.el --- generated from config.org -*- lexical-binding: t; -*-
+#+end_src
+
+* Basic
+The basic emacs/doom settings I like.
+
+** Appearance
+Theme, font and other visual tweaks.
+
+*** Theme
+Gruvbox with the soft dark variant.
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-gruvbox
+      doom-gruvbox-dark-variant "soft"
+      doom-gruvbox-dark-brighter-comments t
+      doom-gruvbox-dark-brighter-modeline t
+      doom-gruvbox-light-brighter-comments nil
+      doom-gruvbox-light-brighter-modeline t)
+#+end_src
+
+*** Font
+JetBrainsMono Nerd Font as the main font.
+
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 18 :weight 'semi-bold))
+#+end_src
+
+*** Splash screen
+Custom image on the dashboard.
+
+#+begin_src emacs-lisp
+(setq fancy-splash-image (concat doom-user-dir "splash.png"))
+#+end_src
+
+*** Org superstar
+Prettier bullets for org headings.
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook #'org-superstar-mode)
+#+end_src
+
+** Paths
+Directories Emacs needs to know about.
+
+*** Org directory
+Where my org files live.
+
+#+begin_src emacs-lisp
+;; Must be set before org loads!
+(setq org-directory "~/org/")
+#+end_src
+
+*** Load path (lisp/)
+Adds the lisp/ folder to the load path so my own packages can be loaded.
+
+#+begin_src emacs-lisp
+(add-load-path! "lisp")
+#+end_src
+
+** General settings
+Options carried over from my Neovim config.
+
+*** Line numbers
+Relative line numbers.
+
+#+begin_src emacs-lisp
+;; Relative (vim.opt.relativenumber = true)
+(setq display-line-numbers-type 'relative)
+#+end_src
+
+*** Tabs and indentation
+Four spaces, no tabs.
+
+#+begin_src emacs-lisp
+;; (vim.opt.tabstop = 4, expandtab = true)
+;; Note: Emacs handles this per-mode, but this sets the defaults.
+(setq-default tab-width 4
+              standard-indent 4
+              indent-tabs-mode nil) ; expandtab (use spaces)
+#+end_src
+
+*** Scrolling
+Keep 10 lines of margin around the cursor and don't overwrite the register when pasting over a selection.
+
+#+begin_src emacs-lisp
+;; (vim.opt.scrolloff = 10)
+(setq scroll-margin 10)
+(setq evil-kill-on-visual-paste nil)
+#+end_src
+
+*** Window splits
+New vertical splits open to the right and horizontal ones above.
+
+#+begin_src emacs-lisp
+;; (vim.opt.splitright = true, splitbelow = false)
+(setq evil-vsplit-window-right t
+      evil-split-window-below nil)
+#+end_src
+
+*** Unlag terminal (disabled)
+Vterm timer tweak, currently disabled.
+
+#+begin_src emacs-lisp :tangle no
+(setq vterm-timer-delay nil)
+#+end_src
+
+* Editing
+General editing helpers.
+
+** Drag-stuff
+Move lines and selections around.
+
+#+begin_src emacs-lisp
+(use-package! drag-stuff
+  :config
+  (drag-stuff-global-mode 1))
+#+end_src
+
+** Evil goggles
+Highlights the region affected by evil operations.
+
+#+begin_src emacs-lisp
+(use-package! evil-goggles
+  :config
+  (evil-goggles-mode)
+  (evil-goggles-use-diff-faces))
+#+end_src
+
+** Undo tree (vundo)
+Visual undo tree on U.
+
+#+begin_src emacs-lisp
+(map!
+ :n "U" #'vundo
+ )
+#+end_src
+
+** Join lines without moving the cursor
+Helper used by the J binding.
+
+#+begin_src emacs-lisp
+;; Helper function for the "J" behavior (join without moving cursor)
+(defun my/join-lines-stay ()
+  "Join lines but keep cursor position."
+  (interactive)
+  (let ((p (point)))
+    (evil-join (point) (line-beginning-position 2))
+    (goto-char p)))
+#+end_src
+
+* Keybindings
+General keybindings.
+
+** Main mappings
+Generally preference, some of them are ported from neovim
+
+#+begin_src emacs-lisp
+(map!
+ ;; -- Normal Mode Mappings --
+ :n ";" #'evil-ex                     ; Map ; to :
+ :n "J" #'my/join-lines-stay          ; J keeps cursor in place (defined above)
+ :n "M-u" #'universal-argument
+
+ ;; Centered Scrolling (C-d/C-u + zz)
+ :n "C-d" (cmd! (evil-scroll-down 0) (evil-scroll-line-to-center nil))
+ :n "C-u" (cmd! (evil-scroll-up 0)   (evil-scroll-line-to-center nil))
+ :n "C-q" #'winner-undo
+ :n "C-e" #'winner-redo
+
+
+ ;; Disable Arrow Keys
+ :n "<left>"  #'ignore
+ :n "<right>" #'ignore
+ :n "<up>"    #'ignore
+ :n "<down>"  #'ignore
+
+
+
+ ;; -- Visual Mode Mappings --
+
+ :v "J" #'drag-stuff-down
+ :v "K" #'drag-stuff-up
+
+
+ ;; -- Leader Key Mappings (Prefix "SPC") --
+ :leader
+ :desc "Open Dired" "pv" #'dired-jump
+ :desc "Seach project" "sg" #'+default/search-project
+ :desc "Diagnostic List" "c q"  #'flycheck-list-errors)
+#+end_src
+
+** Useful binds
+A few small extra binds.
+
+#+begin_src emacs-lisp
+(map!
+ :n "M-p" 'duplicate-line
+ :n "C-," 'doom/window-maximize-buffer)
+#+end_src
+
+** Dired
+Go up a directory with a dot.
+
+#+begin_src emacs-lisp
+;; dired . bind
+(map! :after dired
+      :map dired-mode-map
+      :n "." #'dired-up-directory)
+#+end_src
+
+* Clipboard (Vim-like)
+Keeps the kill ring and the system clipboard separate, like in Vim.
+
+** Separate kill ring and system clipboard
+Stops Emacs from using the system clipboard for every kill and yank.
+
+#+begin_src emacs-lisp
+(setq select-enable-clipboard nil
+      select-enable-primary nil)
+#+end_src
+
+** Yank to system clipboard
+Copies to the system clipboard without touching the kill ring.
+
+#+begin_src emacs-lisp
+(evil-define-operator my/evil-yank-clipboard (beg end type)
+  "Yank to the system clipboard only, leaving the kill ring untouched.
+`evil-yank' always calls `kill-new', even for the + register."
+  :move-point nil
+  :repeat nil
+  (interactive "<R>")
+  (let ((text (if (eq type 'block)
+                  (string-join (extract-rectangle beg end) "\n")
+                (filter-buffer-substring beg end))))
+    (when (and (memq type '(line screen-line))
+               (not (string-suffix-p "\n" text)))
+      (setq text (concat text "\n")))
+    (evil-set-selection 'CLIPBOARD text)
+    (unless (memq type '(line screen-line))
+      (goto-char beg))))
+#+end_src
+
+** Paste from system clipboard
+Pastes from the system clipboard, linewise when it ends in a newline.
+
+#+begin_src emacs-lisp
+(evil-define-command my/evil-paste-clipboard (count)
+  "Paste before point from the system clipboard, linewise if it ends in a newline."
+  :suppress-operator t
+  (interactive "*P")
+  (let ((text (evil-get-register ?+)))
+    (evil-paste-before count ?+ (and (stringp text)
+                                     (string-suffix-p "\n" text)
+                                     #'evil-yank-line-handler))))
+#+end_src
+
+** Clipboard binds
+Leader binds for the two commands above and C-v in insert mode.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Yank to system" :nv "y" #'my/evil-yank-clipboard
+      :desc "Paste from system (before)" :n "P" #'my/evil-paste-clipboard)
+
+(after! evil
+  (map! :i "C-v" (cmd! (insert (shell-command-to-string "wl-paste -n")))))
+#+end_src
+
+** Open file from clipboard path
+Opens the file whose path is in the clipboard.
+
+#+begin_src emacs-lisp
+(defun my/ffc ()
+  "Open the file whose path is in the Wayland clipboard."
+  (interactive)
+  (let ((path (shell-command-to-string "wl-paste -n")))
+    (find-file (string-trim path))))
+#+end_src
+
+* Programming
+Language and tooling settings.
+
+** Formatting (Apheleia)
+Formatter settings.
+
+*** Rust through rust-analyzer
+Formats Rust through the LSP.
+
+#+begin_src emacs-lisp
+;; standalone rustfmt has no idea about the crate's edition, so format via rust-analyzer
+(after! apheleia
+  (dolist (mode '(rust-mode rustic-mode rust-ts-mode))
+    (setf (alist-get mode apheleia-mode-alist) '(lsp))))
+#+end_src
+
+*** C: clang-format
+Clang-format with the LLVM base style and Allman braces.
+
+#+begin_src emacs-lisp
+(defvar-local my/c-clang-format-style
+  "--style={BasedOnStyle: LLVM, BreakBeforeBraces: Allman}"
+  "Style argument passed to clang-format; override per project via dir-locals.")
+
+(after! apheleia
+  (setf (alist-get 'clang-format apheleia-formatters)
+        '("clang-format" "-assume-filename"
+          (or (apheleia-formatters-local-buffer-file-name)
+              (apheleia-formatters-mode-extension) ".c")
+          my/c-clang-format-style)))
+#+end_src
+
+** LSP
+Language server settings.
+
+*** lsp-mode settings
+Turns off the automatic signature popup.
+
+#+begin_src emacs-lisp
+(after! lsp-mode
+  ;; Stop the signature popup from showing automatically
+  (setq lsp-signature-auto-activate nil)
+  )
+#+end_src
+
+*** Topsy (sticky function context)
+Shows the current function at the top of the window.
+
+#+begin_src emacs-lisp
+(use-package! topsy
+  :defer t
+  :init
+  (add-hook! lsp-mode
+    (unless (memq major-mode '(+doom-dashboard-mode org-mode dirvish-mode))
+      (topsy-mode +1))))
+#+end_src
+
+** C / C++
+C and C++ settings.
+
+*** Indentation style
+BSD style indentation because I like the vibe.
+
+#+begin_src emacs-lisp
+(setq c-default-style "bsd"
+      c-ts-mode-indent-style 'bsd)
+#+end_src
+
+*** Clangd (STM32)
+Clangd arguments for the ARM toolchain used with STM32.
+
+#+begin_src emacs-lisp
+(after! lsp-clangd
+  (dolist (arg '("--query-driver=/usr/bin/arm-none-eabi-*"
+                 "--header-insertion=never"))
+    (cl-pushnew arg lsp-clients-clangd-args :test #'equal)))
+#+end_src
+
+** Debugger (DAP / dape)
+Debugging setup.
+
+*** STM32 over OpenOCD
+Turns on dap specifically for stm32, pretty cool.
+
+#+begin_src emacs-lisp
+(defvar my/openocd-command
+  "openocd -f interface/stlink.cfg -f target/stm32f4x.cfg"
+  "Shell command that starts OpenOCD for the current board.")
+
+(defun my/openocd-ready-p ()
+  "Return non-nil if OpenOCD listens for gdb on port 3333.
+Uses ss instead of connecting, since OpenOCD takes only one gdb client."
+  (with-temp-buffer
+    (call-process "ss" nil t nil "-ltn" "sport = :3333")
+    (> (count-lines (point-min) (point-max)) 1)))
+
+(defun my/openocd-ensure ()
+  "Start OpenOCD in a vterm buffer unless its gdb port is already up."
+  (unless (my/openocd-ready-p)
+    (let ((buf (get-buffer-create "*openocd*")))
+      (unless (get-buffer-process buf)
+        (with-current-buffer buf (vterm-mode)))
+      (with-current-buffer buf
+        (vterm-send-string my/openocd-command)
+        (vterm-send-return))
+      (display-buffer buf '(display-buffer-in-side-window (side . bottom) (window-height . 0.25)))
+      (let ((tries 0))
+        (while (and (< tries 100) (not (my/openocd-ready-p)))
+          (sleep-for 0.2)
+          (cl-incf tries)))
+      (unless (my/openocd-ready-p)
+        (user-error "OpenOCD did not open port 3333 in 20 s, check *openocd*")))))
+
+(defun my/openocd-stop ()
+  "Kill the *openocd* vterm buffer, which also stops OpenOCD."
+  (when-let* ((buf (get-buffer "*openocd*")))
+    (when-let* ((proc (get-buffer-process buf)))
+      (set-process-query-on-exit-flag proc nil))
+    (kill-buffer buf)))
+
+(after! dape
+  ;; dape has no quit hook, so run after its final cleanup (the call without skip-process-buffers).
+  (advice-add 'dape--kill-buffers :after
+              (lambda (&optional skip-process-buffers)
+                (unless skip-process-buffers (my/openocd-stop))))
+
+  ;; dape expects `compilation-find-buffer' to return the build buffer, but in a buffer with
+  ;; flycheck/lsp it returns the current one. Switching to the build buffer fixes it.
+  (setq dape-compile-function
+        (lambda (cmd)
+          (set-buffer (compile cmd)))))
+
+(defun dape-stm32 (elf-path)
+  "Start OpenOCD in vterm, build, then flash ELF-PATH over localhost:3333 and debug it with dape."
+  (interactive
+   (list (expand-file-name
+          (read-file-name "Select .elf file: "
+                          (concat (project-root (project-current t)) "build/")))))
+
+  (require 'dape)
+  (require 'vterm)
+  (my/openocd-ensure)
+  (dape `(command ,(expand-file-name "debug-adapters/cpptools-debug/bin/OpenDebugAD7" doom-emacs-dir)
+          command-cwd ,(project-root (project-current t))
+          compile "make -j8"
+          :type "cppdbg"
+          :request "launch"
+          :cwd ,(project-root (project-current t))
+          :program ,elf-path
+          :MIMode "gdb"
+          :externalConsole :json-false
+          :miDebuggerPath ,(executable-find "arm-none-eabi-gdb")
+          :setupCommands [(:text "target extended-remote localhost:3333" :ignoreFailures nil)
+                          (:text "monitor reset halt" :ignoreFailures nil)
+                          (:text ,(concat "file " elf-path) :ignoreFailures nil)
+                          (:text "load" :ignoreFailures nil)])))
+#+end_src
+
+* Org mode
+Org mode settings.
+
+** Heading appearance
+Bigger font sizes for org headings.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(org-level-1 :inherit outline-1 :height 1.4)
+  '(org-level-2 :inherit outline-2 :height 1.3)
+  '(org-level-3 :inherit outline-3 :height 1.2)
+  '(org-level-4 :inherit outline-4 :height 1.1)
+  '(org-document-title :height 1.75 :weight bold))
+#+end_src
+
+** Agenda
+Agenda views and helpers.
+
+*** Helper: path to an org file
+Builds an absolute path inside org-directory.
+
+#+begin_src emacs-lisp
+(defun my/org-file (name)
+  "Absolute path of NAME inside `org-directory'."
+  (expand-file-name name org-directory))
+#+end_src
+
+*** Custom agenda views
+Pretty self explanatory.
+
+#+begin_src emacs-lisp
+(setq org-agenda-custom-commands
+      '(("v" "Improved view"
+         ((tags "*"
+                ((org-agenda-files (list (my/org-file "this_week.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-prefix-format "")
+                 (org-agenda-overriding-header "--- IMPORTANT ---")))
+          (agenda ""
+                  ((org-agenda-span 30)       ;
+                   (org-agenda-show-all-dates nil)
+                   (org-agenda-overriding-header "Scheduled Stuff")))
+          (tags "*"
+                ((org-agenda-files (list (my/org-file "exams.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-overriding-header "--- EXAMS ---")))
+          (tags "*"
+                ((org-agenda-files (list (my/org-file "uni.org")))
+                 (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                 (org-agenda-overriding-header "--- UNI ---")))))
+
+        ("p" "Personal todos"
+         ((tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "personal.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- PERSONAL ---")))
+          (tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "this_week.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "")
+                      (org-agenda-overriding-header "--- THIS WEEK ---")))
+          (tags-todo "*"
+                     ((org-agenda-files (list (my/org-file "projects.org")))
+                      (org-agenda-sorting-strategy '(timestamp-up alpha-up))
+                      (org-agenda-prefix-format "%-12:c ")
+                      (org-agenda-overriding-header "--- PROJECTS ---")))))))
+#+end_src
+
+*** Agenda commands
+Commands and binds that open the two custom views.
+
+#+begin_src emacs-lisp
+(defun my/open-custom-agenda ()
+  "Open the custom \"v\" agenda view (important, scheduled, exams, uni)."
+  (interactive)
+  (org-agenda nil "v")
+  )
+(defun my/open-personal-todos ()
+  "Open the custom \"p\" agenda view (personal, this week, projects todos)."
+  (interactive)
+  (org-agenda nil "p")
+  )
+(map!
+ :n "M-m" #'my/open-custom-agenda
+ :leader "np" #'my/open-personal-todos)
+#+end_src
+
+** Capture templates
+Capture a code note with reference.
+#+begin_src emacs-lisp
+(after! org
+  (add-to-list 'org-capture-templates
+               '("c" "Code TODO" entry
+                 (file+headline +org-capture-todo-file "Inbox")
+                 "* TODO %?\nFrom: %a\n\n#+BEGIN_SRC %(with-current-buffer (org-capture-get :original-buffer) (replace-regexp-in-string \"-ts-mode$\\|-mode$\" \"\" (symbol-name major-mode)))\n%i\n#+END_SRC\n"
+                 :prepend t
+                 :kill-buffer t)))
+#+end_src
+
+** Org-roam
+Note taking with org-roam.
+
+*** Basic setup and templates
+# TODO description
+
+#+begin_src emacs-lisp
+(use-package! org-roam
+  :custom
+  (org-roam-node-display-template
+   (concat "${title:*} " (propertize "${tags:20}" 'face 'shadow)
+           " ${backlinkscount:3}"))
+  :config
+  (cl-defmethod org-roam-node-backlinkscount ((node org-roam-node))
+    (number-to-string (length (org-roam-backlinks-get node))))
+  (setq org-roam-capture-templates
+        '(("d" "default" plain
+           "%?\n\n* References\n- "
+           :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n\nTagi: \n\n")
+           :unnarrowed t)
+          ("l" "literature" plain
+           "* Źródło
+- Autor: %^{Autor}
+- Typ: %^{Typ|książka|artykuł|wideo|kurs|dokumentacja}
+- Gdzie: %^{Link / strony}
+
+,* Główne tezy
+%?
+
+,* Cytaty
+-
+
+,* Moje uwagi
+-
+
+,* Notatki z tego źródła
+- "
+           :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :literature:\n\nTagi: \n\n")
+           :unnarrowed t))))
+#+end_src
+
+*** Org-roam UI
+Graph UI for org-roam, synced with the theme.
+
+#+begin_src emacs-lisp
+(use-package! org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+#+end_src
+
+* Documents
+PDFs, books and markdown.
+
+** PDF
+PDF viewing.
+
+*** pdf-tools
+Vim-like keys in PDFs, with no line numbers and no blinking cursor.
+
+#+begin_src emacs-lisp
+(use-package! pdf-tools
+  :config
+  (add-to-list 'revert-without-query ".pdf")
+  (map! :map pdf-view-mode-map
+        :n "j"   #'pdf-view-next-line-or-next-page
+        :n "k"   #'pdf-view-previous-line-or-previous-page
+        :n "C-=" #'pdf-view-enlarge
+        :n "C-c C-g" #'pdf-view-goto-page
+        :n "C--" #'pdf-view-shrink))
+(add-hook 'pdf-view-mode-hook #'(lambda () (interactive) (display-line-numbers-mode -1)
+                                  (blink-cursor-mode -1)))
+#+end_src
+
+*** Remember position (saveplace)
+Remembers the last page of a PDF.
+
+#+begin_src emacs-lisp
+(use-package! saveplace-pdf-view
+  :after (:any doc-view pdf-tools)
+  :demand t)
+#+end_src
+
+*** Book browser (Calibre)
+Find a file in my Calibre library.
+
+#+begin_src emacs-lisp
+(defun my/browse-books ()
+  "Find a file in the ~/calibre-books library."
+  (interactive)
+  (doom-project-find-file "~/calibre-books")
+  )
+#+end_src
+
+** Markdown
+Markdown settings.
+
+*** Heading appearance
+Sizes and colors for markdown headings.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(markdown-header-delimiter-face :foreground "#616161" :height 0.9)
+  '(markdown-header-face-1 :height 1.8 :foreground "#A3BE8C" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-2 :height 1.4 :foreground "#EBCB8B" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-3 :height 1.2 :foreground "#D08770" :weight extra-bold :inherit markdown-header-face)
+  '(markdown-header-face-4 :height 1.15 :foreground "#BF616A" :weight bold :inherit markdown-header-face)
+  '(markdown-header-face-5 :height 1.1 :foreground "#b48ead" :weight bold :inherit markdown-header-face)
+  '(markdown-header-face-6 :height 1.05 :foreground "#5e81ac" :weight semi-bold :inherit markdown-header-face))
+#+end_src
+
+*** Hide markup outside the current line
+Better experience for markdown files, hides all the markup except the line you are on, something like in obsidian.
+
+#+begin_src emacs-lisp
+(defvar my/current-line '(0 . 0)
+  "(START . END) of the line point is on, used to reveal its hidden markup.")
+(make-variable-buffer-local 'my/current-line)
+
+(defun my/unhide-current-line (limit)
+  "Font-lock matcher that removes markdown concealment on the current line up to LIMIT."
+  (let ((start (max (point) (car my/current-line)))
+        (end (min limit (cdr my/current-line))))
+    (when (< start end)
+      (remove-text-properties start end
+                              '(invisible t display "" composition ""))
+      (goto-char limit)
+      t)))
+
+(defun my/refontify-on-linemove ()
+  "Refontify around point whenever it moves to another line.\nMeant for `post-command-hook'."
+  (let* ((start (line-beginning-position))
+         (end (line-beginning-position 2))
+         (needs-update (not (equal start (car my/current-line)))))
+    (setq my/current-line (cons start end))
+    (when needs-update
+      (font-lock-fontify-block 3))))
+
+(defun my/markdown-unhighlight ()
+  "Hide markdown markup, revealing it only on the line point is on."
+  (interactive)
+  (markdown-toggle-markup-hiding 'toggle)
+  (font-lock-add-keywords nil '((my/unhide-current-line)) t)
+  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
+(add-hook 'markdown-mode-hook #'my/markdown-unhighlight)
+#+end_src
+
+* Custom packages (lisp/)
+Packages from the lisp/ folder, their code is not part of this file.
+
+** Headerize
+A function to transform source files (.c) into header files (and sync them if they already exist)
+#+begin_src emacs-lisp
+(use-package! headerize)
+#+end_src
+
+** RSC (Ask Claude Code)
+Claude Code integration (rsc is a script that starts claude with cooler settings and permissions), ask a question and include visual selection or a whole buffer as a context.
+*** Package setup
+
+#+begin_src emacs-lisp
+(use-package! rsc
+  :commands (rsc-ask rsc-ask-terminal rsc-switch)
+  :config
+  (map! :map rsc-answer-mode-map :nm "q" #'quit-window))
+#+end_src
+
+*** Keybindings
+
+#+begin_src emacs-lisp
+(map!
+ (:prefix ("M-a" . "rsc")
+  :desc "Ask rsc" "M-a" #'rsc-ask
+  :desc "Ask rsc (terminal)" "t" #'rsc-ask-terminal
+  :desc "Switch to rsc" "s" #'rsc-switch))
+#+end_src
